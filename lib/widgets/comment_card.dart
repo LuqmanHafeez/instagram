@@ -29,35 +29,35 @@ class _CommentCardState extends State<CommentCard> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: Expanded(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width - 200,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Flexible(
-                    child: RichText(
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "${widget.commentData["userName"]} ",
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                          TextSpan(
-                            text: widget.commentData["comment"],
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
+                  RichText(
+                    // maxLines: 4,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "${widget.commentData["userName"]} ",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        TextSpan(
+                          text: widget.commentData["comment"],
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
-                    child: Text(DateFormat.yMMMd()
-                        .format(widget.commentData["datePublished"].toDate())),
+                    child: Text(
+                      DateFormat.yMMMd().format(
+                        widget.commentData["datePublished"].toDate(),
+                      ),
+                    ),
                   ),
                 ],
               ),
