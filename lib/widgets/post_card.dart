@@ -4,6 +4,7 @@ import 'package:instagram/models/user.dart';
 import 'package:instagram/providers/user_provider.dart';
 import 'package:instagram/resources/firestore_methods.dart';
 import 'package:instagram/screens/comment_screen.dart';
+import 'package:instagram/screens/full_screen.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:instagram/widgets/comment_card.dart';
 import 'package:instagram/widgets/like_animation.dart';
@@ -120,12 +121,20 @@ class _PostCardState extends State<PostCard> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 300.0,
-                    child: Image.network(
-                      widget.snap["postUrl"],
-                      fit: BoxFit.fill,
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return FullImage(imageUrl: widget.snap["postUrl"]);
+                      }));
+                    },
+                    child: SizedBox(
+                      width: double.infinity,
+                      //height: 300.0,
+                      child: Image.network(
+                        widget.snap["postUrl"],
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   AnimatedOpacity(

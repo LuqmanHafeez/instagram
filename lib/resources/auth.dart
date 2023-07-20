@@ -63,4 +63,8 @@ class AuthMethod {
     }
     return error;
   }
+
+  Future signOut() async {
+    await _firebaseAuth.signOut();
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:instagram/screens/full_screen.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/colors.dart';
 
@@ -107,13 +108,25 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemCount: snapshot.data!.docs.length,
                         gridDelegate:
                             const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                          crossAxisCount: 3,
                         ),
                         itemBuilder: (builder, index) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Image.network(
-                              snapshot.data!.docs[index]["postUrl"],
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute(builder: (context) {
+                                return FullImage(
+                                  imageUrl: snapshot.data!.docs[index]
+                                      ["postUrl"],
+                                );
+                              }));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.network(
+                                snapshot.data!.docs[index]["postUrl"],
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           );
                         },

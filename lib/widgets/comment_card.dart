@@ -29,31 +29,38 @@ class _CommentCardState extends State<CommentCard> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "${widget.commentData["userName"]} ",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white),
+            child: Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: RichText(
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "${widget.commentData["userName"]} ",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          TextSpan(
+                            text: widget.commentData["comment"],
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: widget.commentData["comment"],
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(DateFormat.yMMMd()
-                      .format(widget.commentData["datePublished"].toDate())),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(DateFormat.yMMMd()
+                        .format(widget.commentData["datePublished"].toDate())),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(

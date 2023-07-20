@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/resources/auth.dart';
 import 'package:instagram/resources/firestore_methods.dart';
 import 'package:instagram/resources/storage.dart';
+import 'package:instagram/screens/full_screen.dart';
+import 'package:instagram/screens/login_screen.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:instagram/widgets/follow_button.dart';
 
@@ -98,12 +101,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 FirebaseAuth.instance.currentUser!.uid ==
                                         widget.uid
                                     ? FollowButton(
-                                        text: "Edit Profile",
+                                        text: "Sign Out",
                                         color: Colors.grey,
                                         backGroundColor: mobileBackgroundColor,
-                                        function: () {},
+                                        function: () async {
+                                          await AuthMethod().signOut();
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return const LoginScreen();
+                                          }));
+                                        },
                                       )
-                                    : userMap["followers"].contains(widget.uid)
+                                    : userMap["followers"].contains(FirebaseAuth
+                                            .instance.currentUser!.uid)
                                         ? FollowButton(
                                             text: "Un follow",
                                             color: Colors.blue,
@@ -115,11 +126,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               // });
                                               await FirestoreMethods()
                                                   .followUser(
-                                                      uid: widget.uid,
-                                                      followers: true);
-                                              setState(() {
-                                                // isLoading = false;
-                                              });
+                                                currentUserUid: FirebaseAuth
+                                                    .instance.currentUser!.uid,
+                                                followId: widget.uid,
+                                                followers: true,
+                                              );
+                                              var followers =
+                                                  userMap["followers"];
+                                              followers.remove(FirebaseAuth
+                                                  .instance.currentUser!.uid);
+                                              userMap["followers"] = followers;
+                                              setState(() {});
                                             },
                                           )
                                         : FollowButton(
@@ -134,12 +151,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                               await FirestoreMethods()
                                                   .followUser(
-                                                      uid: widget.uid,
+                                                      currentUserUid:
+                                                          FirebaseAuth.instance
+                                                              .currentUser!.uid,
+                                                      followId: widget.uid,
                                                       followers: false);
 
                                               var followList =
                                                   userMap["followers"];
-                                              followList.add(widget.uid);
+                                              followList.add(FirebaseAuth
+                                                  .instance.currentUser!.uid);
                                               userMap["followers"] = followList;
                                               setState(() {});
                                             },
@@ -185,9 +206,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, index) {
-                              return Image.network(
-                                snapshot.data!.docs[index]["postUrl"],
-                                fit: BoxFit.cover,
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return FullImage(
+                                      imageUrl: snapshot.data!.docs[index]
+                                          ["postUrl"],
+                                    );
+                                  }));
+                                },
+                                child: Image.network(
+                                  snapshot.data!.docs[index]["postUrl"],
+                                  fit: BoxFit.cover,
+                                ),
                               );
                             },
                           ),

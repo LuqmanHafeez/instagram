@@ -131,15 +131,31 @@ class FirestoreMethods {
     }
   }
 
-  Future followUser({required String? uid, required bool followers}) async {
+  Future followUser(
+      {required String? currentUserUid,
+      required bool followers,
+      required String? followId}) async {
     try {
       if (!followers) {
-        await _firebaseFirestore.collection("users").doc(uid).update({
-          "followers": FieldValue.arrayUnion([uid]),
+        await _firebaseFirestore.collection("users").doc(followId).update({
+          "followers": FieldValue.arrayUnion([currentUserUid])
+        });
+
+        await _firebaseFirestore
+            .collection("users")
+            .doc(currentUserUid)
+            .update({
+          "following": FieldValue.arrayUnion([followId]),
         });
       } else {
-        await _firebaseFirestore.collection("users").doc(uid).update({
-          "followers": FieldValue.arrayRemove([uid]),
+        await _firebaseFirestore
+            .collection("users")
+            .doc(currentUserUid)
+            .update({
+          "following": FieldValue.arrayRemove([followId]),
+        });
+        await _firebaseFirestore.collection("users").doc(followId).update({
+          "followers": FieldValue.arrayRemove([currentUserUid]),
         });
       }
     } catch (e) {
