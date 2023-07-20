@@ -17,6 +17,7 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: width > webScreenSize
           ? null
           : AppBar(
@@ -50,6 +51,7 @@ class _FeedScreenState extends State<FeedScreen> {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 return Container(
+                    color: Colors.white,
                     margin: EdgeInsets.symmetric(
                       horizontal: width > webScreenSize ? width * 0.3 : 0,
                       vertical: width > webScreenSize ? 15 : 0,

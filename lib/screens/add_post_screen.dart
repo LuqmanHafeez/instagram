@@ -6,6 +6,7 @@ import 'package:instagram/models/user.dart';
 import 'package:instagram/providers/user_provider.dart';
 import 'package:instagram/resources/firestore_methods.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:instagram/utils/dimension.dart';
 import 'package:instagram/utils/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -105,11 +106,13 @@ class _AddPostState extends State<AddPost> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     final User? user = Provider.of<UserProvider>(context).getUser;
     return _file == null
         ? Center(
             child: IconButton(
-              icon: const Icon(Icons.upload),
+              icon: Icon(Icons.upload,
+                  color: width > webScreenSize ? Colors.black : Colors.white),
               onPressed: () {
                 selectImage(context);
               },
