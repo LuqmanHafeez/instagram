@@ -49,7 +49,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
   @override
   Widget build(BuildContext context) {
     model.User? user = Provider.of<UserProvider>(context).getUser;
-    debugPrint("user.id: ${user?.uid}");
+    debugPrint("user.id: ${user?.uid.toString()}");
     return SafeArea(
       child: Scaffold(
         backgroundColor: mobileBackgroundColor,
@@ -59,7 +59,10 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
             SearchScreen(),
             AddPost(),
             Text("Favourite"),
-            ProfileScreen(uid: user!.uid),
+            user == null ? SizedBox.shrink() : ProfileScreen(uid: user.uid),
+            // Container(
+            //   child: Text("Profile"),
+            // ),
           ],
           physics: const NeverScrollableScrollPhysics(),
           controller: pageController,

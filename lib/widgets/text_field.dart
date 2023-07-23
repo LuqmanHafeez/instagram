@@ -19,6 +19,8 @@ class TextFieldClass extends StatelessWidget {
   Widget build(BuildContext context) {
     final inputBorder =
         OutlineInputBorder(borderSide: Divider.createBorderSide(context));
+
+    // return Container(height: 200, width: 500);
     return TextFormField(
       validator: validator,
       obscureText: obsecureText,

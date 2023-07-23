@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:instagram/models/user.dart' as model;
 import 'package:instagram/resources/storage.dart';
 
@@ -24,8 +25,10 @@ class AuthMethod {
       String? photoUrl;
 
       if (file != null) {
+        Uint8List image =
+            await FlutterImageCompress.compressWithList(file, quality: 25);
         photoUrl = await StorageMethod()
-            .uploadImageToStorage("profilePic", file, false);
+            .uploadImageToStorage("profilePic", kIsWeb ? file : image, false);
       } else {
         photoUrl =
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOmexifoKNXEehSgw2Qx-LbzHlEwLCwZ_I0BsPsGZxwA&s";
@@ -65,6 +68,10 @@ class AuthMethod {
   }
 
   Future signOut() async {
-    await _firebaseAuth.signOut();
+    try {
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }

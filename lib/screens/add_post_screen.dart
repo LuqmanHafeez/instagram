@@ -120,15 +120,28 @@ class _AddPostState extends State<AddPost> {
           )
         : SafeArea(
             child: Scaffold(
+              backgroundColor:
+                  width > webScreenSize ? Colors.white : mobileBackgroundColor,
               appBar: AppBar(
-                backgroundColor: mobileBackgroundColor,
+                elevation: 0,
+                backgroundColor: width > webScreenSize
+                    ? Colors.white
+                    : mobileBackgroundColor,
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: width > webScreenSize ? Colors.black : null,
+                  ),
                   onPressed: () {
                     clearImage();
                   },
                 ),
-                title: const Text("Add Post"),
+                title: Text(
+                  "Add Post",
+                  style: TextStyle(
+                    color: width > webScreenSize ? Colors.black : Colors.white,
+                  ),
+                ),
                 centerTitle: false,
                 actions: [
                   TextButton(
@@ -148,7 +161,9 @@ class _AddPostState extends State<AddPost> {
                   _isLoading
                       ? const LinearProgressIndicator()
                       : const Padding(padding: EdgeInsets.only(top: 0)),
-                  Divider(),
+                  Divider(
+                    color: width > webScreenSize ? Colors.black : null,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,11 +172,20 @@ class _AddPostState extends State<AddPost> {
                         backgroundImage: NetworkImage(user!.photoUrl),
                       ),
                       SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.45,
+                        width: width > webScreenSize
+                            ? MediaQuery.of(context).size.width * 0.35
+                            : MediaQuery.of(context).size.width * 0.45,
                         child: TextField(
+                          style: TextStyle(
+                            color: width > webScreenSize ? Colors.black : null,
+                          ),
                           controller: captionController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                               hintText: "Write a caption...",
+                              hintStyle: TextStyle(
+                                color:
+                                    width > webScreenSize ? Colors.black : null,
+                              ),
                               border: InputBorder.none),
                           maxLines: 8,
                         ),

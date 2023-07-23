@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/resources/auth.dart';
 import 'package:instagram/resources/firestore_methods.dart';
@@ -7,10 +8,11 @@ import 'package:instagram/resources/storage.dart';
 import 'package:instagram/screens/full_screen.dart';
 import 'package:instagram/screens/login_screen.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:instagram/utils/dimension.dart';
 import 'package:instagram/widgets/follow_button.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String? uid;
+  final String uid;
   const ProfileScreen({super.key, required this.uid});
 
   @override
@@ -52,14 +54,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return isLoading
         ? const Center(child: CircularProgressIndicator())
         : Scaffold(
+            backgroundColor:
+                width > webScreenSize ? Colors.white : mobileBackgroundColor,
             appBar: AppBar(
-              backgroundColor: mobileBackgroundColor,
+              elevation: 0,
+              backgroundColor:
+                  width > webScreenSize ? Colors.white : mobileBackgroundColor,
               title: Text(
                 userMap["userName"],
-                style: const TextStyle(
+                style: TextStyle(
+                    color: width > webScreenSize ? Colors.black : Colors.white,
                     //fontWeight: FontWeight.w600
                     fontSize: 15.0),
               ),
@@ -87,11 +95,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               //mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                buildColumnState(postMap.length, "posts"),
                                 buildColumnState(
-                                    userMap["followers"].length, "followers"),
-                                buildColumnState(
-                                    userMap["following"].length, "following"),
+                                    postMap.length, "posts", width),
+                                buildColumnState(userMap["followers"].length,
+                                    "followers", width),
+                                buildColumnState(userMap["following"].length,
+                                    "following", width),
                               ],
                             ),
                             const SizedBox(height: 8.0),
@@ -101,9 +110,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 FirebaseAuth.instance.currentUser!.uid ==
                                         widget.uid
                                     ? FollowButton(
+                                        textColor: width > webScreenSize
+                                            ? Colors.white
+                                            : Colors.blue,
                                         text: "Sign Out",
-                                        color: Colors.grey,
-                                        backGroundColor: mobileBackgroundColor,
+                                        color: width > webScreenSize
+                                            ? Colors.blue
+                                            : Colors.grey,
+                                        backGroundColor: width > webScreenSize
+                                            ? Colors.blue
+                                            : mobileBackgroundColor,
                                         function: () async {
                                           await AuthMethod().signOut();
                                           Navigator.of(context).pushReplacement(
@@ -116,10 +132,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : userMap["followers"].contains(FirebaseAuth
                                             .instance.currentUser!.uid)
                                         ? FollowButton(
+                                            textColor: width > webScreenSize
+                                                ? Colors.white
+                                                : Colors.blue,
                                             text: "Un follow",
                                             color: Colors.blue,
                                             backGroundColor:
-                                                mobileBackgroundColor,
+                                                width > webScreenSize
+                                                    ? Colors.blue
+                                                    : mobileBackgroundColor,
                                             function: () async {
                                               // setState(() {
                                               //   isLoading = true;
@@ -140,10 +161,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             },
                                           )
                                         : FollowButton(
+                                            textColor: width > webScreenSize
+                                                ? Colors.white
+                                                : Colors.blue,
                                             text: "Follow",
                                             color: Colors.blue,
                                             backGroundColor:
-                                                mobileBackgroundColor,
+                                                width > webScreenSize
+                                                    ? Colors.blue
+                                                    : mobileBackgroundColor,
                                             function: () async {
                                               // setState(() {
                                               //   isLoading = true;
@@ -182,7 +208,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4.0),
-                  const Divider(),
+                  Divider(
+                    color: width > webScreenSize ? Colors.black : null,
+                  ),
                   FutureBuilder(
                       future: FirebaseFirestore.instance
                           .collection("posts")
@@ -231,17 +259,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
   }
 
-  Column buildColumnState(int num, String text) {
+  Column buildColumnState(int num, String text, final width) {
     return Column(
       children: [
         Text(
           num.toString(),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
+            color: width > webScreenSize ? Colors.black : Colors.grey,
+          ),
         ),
         const SizedBox(height: 5.0),
         Text(
           text,
-          style: const TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: width > webScreenSize ? Colors.black : Colors.grey,
+          ),
         ),
       ],
     );

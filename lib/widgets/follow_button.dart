@@ -6,12 +6,14 @@ class FollowButton extends StatefulWidget {
   final text;
   final color;
   final backGroundColor;
+  final textColor;
   const FollowButton(
       {super.key,
       this.function,
       required this.text,
       required this.color,
-      required this.backGroundColor});
+      required this.backGroundColor,
+      required this.textColor});
 
   @override
   State<FollowButton> createState() => _FollowButtonState();
@@ -31,7 +33,10 @@ class _FollowButtonState extends State<FollowButton> {
             border: Border.all(color: widget.color),
             borderRadius: BorderRadius.circular(5)),
         alignment: Alignment.center,
-        child: Text(widget.text),
+        child: Text(
+          widget.text,
+          style: TextStyle(color: widget.textColor),
+        ),
       ),
     );
   }

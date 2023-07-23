@@ -4,6 +4,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:instagram/screens/full_screen.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:instagram/utils/dimension.dart';
+import 'package:instagram/utils/utils.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -15,124 +17,155 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool isShowUser = false;
+
+  bool userRecordViewActive = false;
+  bool isLoading = true;
+
+  QuerySnapshot<Map<String, dynamic>>? userRecordSnaphsot;
+  QuerySnapshot<Map<String, dynamic>>? postRecordSnaphsot;
+
+  @override
+  void initState() {
+    loadPostsData();
+    super.initState();
+  }
+
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     searchController.dispose();
   }
 
+  loadUsersData() async {
+    setState(() {
+      isLoading = true;
+    });
+    userRecordSnaphsot = await FirebaseFirestore.instance
+        .collection("users")
+        .where("userName", isGreaterThanOrEqualTo: searchController.text)
+        .get();
+
+    userRecordViewActive = true;
+    isLoading = false;
+    setState(() {});
+  }
+
+  loadPostsData() async {
+    postRecordSnaphsot = await FirebaseFirestore.instance
+        .collection("posts")
+        .orderBy("datePublished", descending: true)
+        .get();
+
+    userRecordViewActive = false;
+    isLoading = false;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return SafeArea(
-      child: Form(
-        key: _formKey,
-        child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: mobileBackgroundColor,
-              elevation: 0,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextFormField(
-                  controller: searchController,
-                  decoration: const InputDecoration(
-                    labelText: "Search for a user",
-                    // hintText: "Search for a user",
-                    border: OutlineInputBorder(borderSide: BorderSide.none),
-                  ),
-                  onFieldSubmitted: (String value) {
-                    setState(() {
-                      isShowUser = true;
-                    });
-                  },
-                ),
-              ),
-            ),
-            body: isShowUser
-                ? FutureBuilder(
-                    future: FirebaseFirestore.instance
-                        .collection("users")
-                        .where("userName",
-                            isGreaterThanOrEqualTo: searchController.text)
-                        .get(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              // searchController.clear();
-                              // setState(() {
-                              //   isShowUser = false;
-                              // });
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) {
-                                return ProfileScreen(
-                                    uid: snapshot.data!.docs[index]["uid"]);
-                              }));
-                            },
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                  snapshot.data!.docs[index]["photoUrl"],
-                                ),
-                              ),
-                              title: Text(
-                                snapshot.data!.docs[index]["userName"],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    })
-                : FutureBuilder(
-                    future: FirebaseFirestore.instance
-                        .collection("posts")
-                        .orderBy("datePublished", descending: true)
-                        .get(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return MasonryGridView.builder(
-                        //mainAxisSpacing: 8.0,
-                        //crossAxisSpacing: 8.0,
-                        itemCount: snapshot.data!.docs.length,
-                        gridDelegate:
-                            const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
+        child: Form(
+            key: _formKey,
+            child: Scaffold(
+                backgroundColor: width > webScreenSize
+                    ? Colors.white
+                    : mobileBackgroundColor,
+                appBar: AppBar(
+                  backgroundColor: width > webScreenSize
+                      ? Colors.white
+                      : mobileBackgroundColor,
+                  elevation: 0,
+                  title: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: TextFormField(
+                      style: TextStyle(
+                        color: width > webScreenSize ? Colors.black : null,
+                      ),
+                      controller: searchController,
+                      decoration: InputDecoration(
+                        labelText: "Search for a user",
+                        labelStyle: TextStyle(
+                          color: width > webScreenSize ? Colors.black : null,
                         ),
-                        itemBuilder: (builder, index) {
-                          return InkWell(
-                            onTap: () {
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) {
-                                return FullImage(
-                                  imageUrl: snapshot.data!.docs[index]
-                                      ["postUrl"],
-                                );
-                              }));
+                        border: const OutlineInputBorder(
+                            borderSide: BorderSide.none),
+                      ),
+                      onFieldSubmitted: (String value) {
+                        loadUsersData();
+                      },
+                    ),
+                  ),
+                ),
+                body: isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : userRecordViewActive
+                        ? ListView.builder(
+                            itemCount: userRecordSnaphsot!.docs.length,
+                            itemBuilder: (context, index) {
+                              final userRecord =
+                                  userRecordSnaphsot!.docs[index].data();
+                              return InkWell(
+                                onTap: () {
+                                  // searchController.clear();
+                                  // setState(() {
+                                  //   isShowUser = false;
+                                  // });
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return ProfileScreen(
+                                        uid: userRecord["uid"]);
+                                  }));
+                                },
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      userRecord["photoUrl"] ?? dumyProfileUrl,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    userRecord["userName"],
+                                    style: TextStyle(
+                                      color: width > webScreenSize
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              );
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.network(
-                                snapshot.data!.docs[index]["postUrl"],
-                                fit: BoxFit.cover,
-                              ),
+                          )
+                        : MasonryGridView.builder(
+                            //mainAxisSpacing: 8.0,
+                            //crossAxisSpacing: 8.0,
+                            itemCount: postRecordSnaphsot!.docs.length,
+                            gridDelegate:
+                                const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
                             ),
-                          );
-                        },
-                      );
-                    })),
-      ),
-    );
+                            itemBuilder: (builder, index) {
+                              final postRecord =
+                                  postRecordSnaphsot!.docs[index].data();
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) {
+                                    return FullImage(
+                                      imageUrl: postRecord[index]["postUrl"],
+                                    );
+                                  }));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Image.network(
+                                    postRecord["postUrl"],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
+                          ))));
   }
 }

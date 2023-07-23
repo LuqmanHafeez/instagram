@@ -17,7 +17,7 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: width > webScreenSize ? Colors.white : Colors.black,
       appBar: width > webScreenSize
           ? null
           : AppBar(
@@ -51,16 +51,34 @@ class _FeedScreenState extends State<FeedScreen> {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 return Container(
-                    color: Colors.white,
+                    padding: width > webScreenSize
+                        ? const EdgeInsets.only(left: 25.0)
+                        : null,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: width > webScreenSize
+                            ? Colors.white
+                            : mobileBackgroundColor,
+                      ),
+                      color: width > webScreenSize
+                          ? Colors.white
+                          : mobileBackgroundColor,
+                    ),
                     margin: EdgeInsets.symmetric(
-                      horizontal: width > webScreenSize ? width * 0.3 : 0,
-                      vertical: width > webScreenSize ? 15 : 0,
+                      horizontal: width > webScreenSize ? width * 0.1 : 0,
+                      vertical: width > webScreenSize ? 10 : 0,
                     ),
                     child: PostCard(snap: snapshot.data!.docs[index]));
               },
             );
           } else {
-            return const SizedBox.shrink();
+            return Center(
+              child: Text("There are not post yet",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: width > webScreenSize ? Colors.black : Colors.white,
+                  )),
+            );
           }
         }),
       ),

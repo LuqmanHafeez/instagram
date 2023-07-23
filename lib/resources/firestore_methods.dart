@@ -2,12 +2,14 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:instagram/models/post.dart';
-import 'package:instagram/resources/auth.dart';
+
 import 'package:instagram/resources/storage.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class FirestoreMethods {
   FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -24,9 +26,16 @@ class FirestoreMethods {
     String res = "Some Problem";
     try {
       String postId = Uuid().v1();
+      debugPrint("image Compress ${file.lengthInBytes}");
+      Uint8List? imageCompressed;
+      if (!kIsWeb) {
+        imageCompressed =
+            await FlutterImageCompress.compressWithList(file, quality: 25);
+        debugPrint("image Compress ${imageCompressed.lengthInBytes}");
+      }
 
-      String postUrl =
-          await StorageMethod().uploadImageToStorage(childName, file, ispost);
+      String postUrl = await StorageMethod().uploadImageToStorage(
+          childName, kIsWeb ? file : imageCompressed, ispost);
       Post post = Post(
           userName: userName,
           profileImage: photoUrl,
@@ -42,7 +51,9 @@ class FirestoreMethods {
           .doc(postId)
           .set(post.toJason());
       return res = "Success";
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("uploadPost Exception " + e.toString());
+      debugPrint("uploadPost StackTrace " + stackTrace.toString());
       res = e.toString();
       return res;
     }
